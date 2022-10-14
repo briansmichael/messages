@@ -14,16 +14,7 @@
  *  limitations under the License.
  */
 
-package com.starfireaviation.messages;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class MessagesApplicationTests {
-
-	@Test
-	void contextLoads() {
-	}
-
-}
+/**
+ * Model classes.
+ */
+package com.starfireaviation.messages.model;
