@@ -16,10 +16,6 @@ spec:
       labels:
         {{- include "messages.selectorLabels" . | nindent 8 }}
     spec:
-      volumes:
-        - name: web-data
-          persistentVolumeClaim:
-            claimName: web-nfs-pvc
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -51,8 +47,5 @@ spec:
               port: http
             initialDelaySeconds: 120
             periodSeconds: 30
-          volumeMounts:
-            - mountPath: "/mnt"
-              name: web-data
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
