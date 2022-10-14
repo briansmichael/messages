@@ -19,7 +19,7 @@ package com.starfireaviation.messages.controller;
 import com.starfireaviation.messages.config.CommonConstants;
 import com.starfireaviation.messages.exception.InsufficientStorageException;
 import com.starfireaviation.messages.exception.InvalidPayloadException;
-import com.starfireaviation.messages.model.Message;
+import com.starfireaviation.model.Message;
 import com.starfireaviation.messages.service.MessageService;
 import com.starfireaviation.messages.validation.MessageValidator;
 import lombok.extern.slf4j.Slf4j;
