@@ -17,7 +17,7 @@
 package com.starfireaviation.messages.service;
 
 import com.starfireaviation.messages.config.CommonConstants;
-import com.starfireaviation.messages.model.Message;
+import com.starfireaviation.model.Message;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;

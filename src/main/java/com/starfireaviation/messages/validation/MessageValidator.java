@@ -17,7 +17,7 @@
 package com.starfireaviation.messages.validation;
 
 import com.starfireaviation.messages.exception.InvalidPayloadException;
-import com.starfireaviation.messages.model.Message;
+import com.starfireaviation.model.Message;
 import lombok.extern.slf4j.Slf4j;
 
 /**
