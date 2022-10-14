@@ -21,7 +21,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+			<version>5.1.4</version>
+		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -33,6 +41,44 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<reporting>
+		<excludeDefaults>true</excludeDefaults>
+		<plugins>
+			<plugin>
+				<groupId>org.openclover</groupId>
+				<artifactId>clover-maven-plugin</artifactId>
+				<configuration>
+					<!-- Verify that we can modify the location of the Clover database and that the directory is created if
+                         it doesn't exist. Note: we're putting the configuration here and not in the build section because the
+                         build section inherits from the reporting section but not the other way around... -->
+					<!--cloverDatabase>${project.build.directory}/customclover/myclover.db</cloverDatabase-->
+
+					<!-- Verify that we can generate all types of Clover reports -->
+					<generateHtml>true</generateHtml>
+					<generatePdf>true</generatePdf>
+					<generateXml>true</generateXml>
+
+					<!-- We ask the Clover plugin to generate a historical report but we don't have any historical data saved.
+                         This is to verify it doesn't error out when this is the case. -->
+					<generateHistorical>true</generateHistorical>
+					<!--useFullyQualifiedJavaLang>false</useFullyQualifiedJavaLang-->
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.16.0</version>
+				<configuration>
+					<failOnViolation>true</failOnViolation>
+					<printFailingErrors>true</printFailingErrors>
+					<rulesets>
+						<ruleset>/category/java/bestpractices.xml</ruleset>
+					</rulesets>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 
 	<build>
 		<plugins>
@@ -47,6 +93,166 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>4.1</version>
+				<configuration>
+					<header>${project.basedir}/src/license/license-header.txt</header>
+					<properties>
+						<owner>${project.organization.name}</owner>
+					</properties>
+					<mapping>
+						<java>SLASHSTAR_STYLE</java>
+					</mapping>
+					<headerDefinitions>
+						<headerDefinition>${project.basedir}/src/license/license-header-style.xml</headerDefinition>
+					</headerDefinitions>
+					<includes>
+						<include>src/main/java/**/*</include>
+						<include>src/test/java/**/*</include>
+						<include>pom.xml</include>
+					</includes>
+					<excludes>
+						<exclude>**/README</exclude>
+						<exclude>src/main/resources/**</exclude>
+						<exclude>src/test/resources/**</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>add-licenses</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.1.2</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>9.3</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<checkstyleRules>
+						<module name="Checker">
+							<module name="LineLength">
+								<property name="max" value="120"/>
+							</module>
+							<module name="JavadocPackage">
+								<property name="allowLegacy" value="true"/>
+							</module>
+							<module name="NewlineAtEndOfFile"/>
+							<module name="Translation"/>
+							<module name="FileLength"/>
+							<module name="FileTabCharacter">
+								<property name="eachLine" value="true"/>
+							</module>
+							<!-- module name="RegexpSingleline">
+								<property name="format" value="\s+$"/>
+								<property name="websocketMessage" value="Line has trailing spaces."/>
+							</module -->
+							<module name="TreeWalker">
+								<!-- property name="cacheFile" value="${checkstyle.cache.file}"/ -->
+								<module name="SuppressWarningsHolder"/>
+								<module name="JavadocMethod"/>
+								<module name="JavadocType"/>
+								<module name="JavadocVariable"/>
+								<module name="JavadocStyle"/>
+								<module name="ConstantName"/>
+								<module name="LocalFinalVariableName"/>
+								<module name="LocalVariableName"/>
+								<module name="MemberName"/>
+								<module name="MethodName"/>
+								<module name="PackageName"/>
+								<module name="ParameterName"/>
+								<module name="StaticVariableName"/>
+								<module name="TypeName"/>
+								<module name="AvoidStarImport"/>
+								<module name="IllegalImport"/> <!-- defaults to sun.* packages -->
+								<module name="RedundantImport"/>
+								<module name="UnusedImports"/>
+								<module name="MethodLength"/>
+								<module name="ParameterNumber"/>
+								<module name="EmptyForIteratorPad"/>
+								<module name="MethodParamPad"/>
+								<module name="NoWhitespaceAfter"/>
+								<module name="NoWhitespaceBefore"/>
+								<module name="OperatorWrap"/>
+								<module name="ParenPad"/>
+								<module name="TypecastParenPad"/>
+								<module name="WhitespaceAfter"/>
+								<module name="WhitespaceAround"/>
+								<module name="ModifierOrder"/>
+								<module name="RedundantModifier"/>
+								<module name="AvoidNestedBlocks"/>
+								<module name="EmptyBlock"/>
+								<module name="LeftCurly"/>
+								<module name="NeedBraces"/>
+								<module name="RightCurly"/>
+								<module name="AvoidInlineConditionals"/>
+								<module name="EmptyStatement"/>
+								<module name="EqualsHashCode"/>
+								<module name="HiddenField"/>
+								<module name="IllegalInstantiation"/>
+								<module name="InnerAssignment"/>
+								<module name="MagicNumber"/>
+								<module name="MissingSwitchDefault"/>
+								<module name="SimplifyBooleanExpression"/>
+								<module name="SimplifyBooleanReturn"/>
+								<module name="DesignForExtension"/>
+								<!-- module name="FinalClass"/ -->
+								<!-- module name="HideUtilityClassConstructor"/ -->
+								<module name="InterfaceIsType"/>
+								<module name="VisibilityModifier"/>
+								<module name="ArrayTypeStyle"/>
+								<module name="FinalParameters"/>
+								<module name="TodoComment"/>
+								<module name="UpperEll"/>
+							</module>
+							<module name="SuppressWarningsFilter"/>
+							<module name="UniqueProperties"/>
+						</module>
+					</checkstyleRules>
+					<consoleOutput>true</consoleOutput>
+					<failOnViolation>true</failOnViolation>
+					<includeResources>false</includeResources>
+					<includeTestSourceDirectory>false</includeTestSourceDirectory>
+					<!-- Only check the actual source directories in src, not anything generated in target. -->
+					<sourceDirectories>
+						<sourceDirectory>src/main/java</sourceDirectory>
+					</sourceDirectories>
+					<testSourceDirectories>
+						<testSourceDirectory>src/test/java</testSourceDirectory>
+					</testSourceDirectories>
+				</configuration>
+				<executions>
+					<!--
+  Execute checkstyle after compilation but before tests.
+  This ensures that any parsing or type checking errors are from
+  javac, so they look as expected. Beyond that, we want to
+  fail as early as possible.
+-->
+					<execution>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version>
 			</plugin>
 		</plugins>
 	</build>
