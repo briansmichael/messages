@@ -21,9 +21,9 @@ import com.starfireaviation.messages.model.Message;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.PriorityBlockingQueue;
 
 @Slf4j
 public class MessageService {
@@ -54,7 +54,7 @@ public class MessageService {
             if (messageQueueMap.containsKey(org)) {
                 messageQueue = messageQueueMap.get(org);
             } else {
-                messageQueue = new ArrayBlockingQueue<>(CommonConstants.MAX_QUEUE_SIZE);
+                messageQueue = new PriorityBlockingQueue<>(CommonConstants.MAX_QUEUE_SIZE);
             }
             success = messageQueue.offer(message);
         } catch (IllegalArgumentException iae) {

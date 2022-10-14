@@ -21,19 +21,15 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class Message implements Serializable {
+public class Message implements Comparable<Message>, Serializable {
 
     /**
      * Organization.
-     *
-     * Note: reserved for future implementation
      */
     private String organization;
 
     /**
      * Priority.
-     *
-     * Note: reserved for future implementation
      */
     private Priority priority;
 
@@ -48,4 +44,23 @@ public class Message implements Serializable {
      * Payload.
      */
     private String payload;
+
+    /**
+     * Compares this message's priority to another message's priority.
+     *
+     * @param other the object to be compared.
+     * @return priority order
+     */
+    @Override
+    public int compareTo(final Message other) {
+        if (getPriority() != other.getPriority()) {
+            if (other.getPriority() == Priority.HIGH) {
+                return -1;
+            }
+            if (other.getPriority() == Priority.LOW) {
+                return 1;
+            }
+        }
+        return 0;
+    }
 }
