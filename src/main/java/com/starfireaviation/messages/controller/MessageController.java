@@ -85,6 +85,10 @@ public class MessageController {
     @GetMapping
     public Message get(@RequestParam(name = "notificationType", required = false) final String notificationType,
                        @RequestParam(name = "organization", required = false) final String organization) {
-        return messageService.getMessage(organization, NotificationType.valueOf(notificationType));
+        String type = notificationType;
+        if (type != null) {
+            type = type.toUpperCase();
+        }
+        return messageService.getMessage(organization, NotificationType.valueOf(type));
     }
 }
