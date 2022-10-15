@@ -97,6 +97,7 @@ public class MessageService {
         if (org == null) {
             org = CommonConstants.DEFAULT_ORGANIZATION;
         }
+        org = org.toUpperCase();
         NotificationType type = notificationType;
         if (type == null) {
             type = NotificationType.ALL;
