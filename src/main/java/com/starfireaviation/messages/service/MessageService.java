@@ -18,10 +18,10 @@ package com.starfireaviation.messages.service;
 
 import com.starfireaviation.messages.config.CommonConstants;
 import com.starfireaviation.model.Message;
+import com.starfireaviation.model.NotificationType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -31,7 +31,7 @@ public class MessageService {
     /**
      * Message queue amp.
      */
-    private final Map<String, BlockingQueue<Message>> messageQueueMap;
+    private final Map<String, PriorityBlockingQueue<Message>> messageQueueMap;
 
     /**
      * MessageService.
@@ -47,12 +47,12 @@ public class MessageService {
      * @return message add success
      */
     public boolean addMessage(final Message message) {
-        final String org = message.getOrganization();
-        BlockingQueue<Message> messageQueue = null;
+        PriorityBlockingQueue<Message> messageQueue = null;
         boolean success = false;
+        final String key = getKey(message.getOrganization(), message.getNotificationType());
         try {
-            if (messageQueueMap.containsKey(org)) {
-                messageQueue = messageQueueMap.get(org);
+            if (messageQueueMap.containsKey(key)) {
+                messageQueue = messageQueueMap.get(key);
             } else {
                 messageQueue = new PriorityBlockingQueue<>(CommonConstants.MAX_QUEUE_SIZE);
             }
@@ -60,7 +60,7 @@ public class MessageService {
         } catch (IllegalArgumentException iae) {
             log.error(iae.getMessage());
         } finally {
-            messageQueueMap.put(org, messageQueue);
+            messageQueueMap.put(key, messageQueue);
         }
         return success;
     }
@@ -69,12 +69,39 @@ public class MessageService {
      * Gets a message from the queue, or null if no messages are available.
      *
      * @param organization Organization
+     * @param notificationType NotificationType
      * @return Message
      */
-    public Message getMessage(final String organization) {
-        if (messageQueueMap.containsKey(organization)) {
-            return messageQueueMap.get(organization).poll();
+    public Message getMessage(final String organization, final NotificationType notificationType) {
+        final String key = getKey(organization, notificationType);
+        final String fallbackKey = getKey(organization, NotificationType.ALL);
+        Message message = null;
+        if (messageQueueMap.containsKey(key)) {
+            message = messageQueueMap.get(key).poll();
         }
-        return null;
+        if (message == null && messageQueueMap.containsKey(fallbackKey)) {
+            message = messageQueueMap.get(fallbackKey).poll();
+        }
+        return message;
     }
+
+    /**
+     * Derives the messageQueueMap key from message attributes.
+     *
+     * @param organization Organization
+     * @param notificationType NotificationType
+     * @return messageQueueMap key
+     */
+    private String getKey(final String organization, final NotificationType notificationType) {
+        String org = organization;
+        if (org == null) {
+            org = CommonConstants.DEFAULT_ORGANIZATION;
+        }
+        NotificationType type = notificationType;
+        if (type == null) {
+            type = NotificationType.ALL;
+        }
+        return org + "-" + type;
+    }
+
 }
