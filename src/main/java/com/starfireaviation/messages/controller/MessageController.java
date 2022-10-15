@@ -16,17 +16,18 @@
 
 package com.starfireaviation.messages.controller;
 
-import com.starfireaviation.messages.config.CommonConstants;
 import com.starfireaviation.messages.exception.InsufficientStorageException;
 import com.starfireaviation.messages.exception.InvalidPayloadException;
 import com.starfireaviation.model.Message;
 import com.starfireaviation.messages.service.MessageService;
 import com.starfireaviation.messages.validation.MessageValidator;
+import com.starfireaviation.model.NotificationType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -68,7 +69,6 @@ public class MessageController {
     @PostMapping
     public void post(@RequestBody final Message message) throws InvalidPayloadException, InsufficientStorageException {
         messageValidator.validate(message);
-        message.setOrganization(CommonConstants.DEFAULT_ORGANIZATION);
         final boolean success = messageService.addMessage(message);
         if (!success) {
             throw new InsufficientStorageException("Message add failed");
@@ -78,10 +78,13 @@ public class MessageController {
     /**
      * Retrieves a message.
      *
+     * @param organization optional Organization query parameter
+     * @param notificationType optional NotificationType query parameter
      * @return Message
      */
     @GetMapping
-    public Message get() {
-        return messageService.getMessage(CommonConstants.DEFAULT_ORGANIZATION);
+    public Message get(@RequestParam(name = "notificationType", required = false) final String notificationType,
+                       @RequestParam(name = "organization", required = false) final String organization) {
+        return messageService.getMessage(organization, NotificationType.valueOf(notificationType));
     }
 }
