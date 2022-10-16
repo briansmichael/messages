@@ -34,6 +34,20 @@ public class MessageValidator {
      */
     public void validate(final Message message) throws InvalidPayloadException {
         empty(message);
+        emptyOrganization(message);
+    }
+
+    /**
+     * Ensures organization is not null.
+     *
+     * @param message Message
+     */
+    private static void emptyOrganization(final Message message) throws InvalidPayloadException {
+        if (message.getOrganization() == null) {
+            String msg = "No organization was provided";
+            log.warn(msg);
+            throw new InvalidPayloadException(msg);
+        }
     }
 
     /**

@@ -16,6 +16,7 @@
 
 package com.starfireaviation.messages.controller;
 
+import com.starfireaviation.messages.config.CommonConstants;
 import com.starfireaviation.messages.exception.InsufficientStorageException;
 import com.starfireaviation.messages.exception.InvalidPayloadException;
 import com.starfireaviation.model.Message;
@@ -23,6 +24,7 @@ import com.starfireaviation.messages.service.MessageService;
 import com.starfireaviation.messages.validation.MessageValidator;
 import com.starfireaviation.model.NotificationType;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,12 +32,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Objects;
+
 @Slf4j
 @RestController
 @RequestMapping({
         "/messages"
 })
 public class MessageController {
+
+    /**
+     * IPv4 Localhost.
+     */
+    private static final String LOCALHOST_IPV4 = "127.0.0.1";
+
+    /**
+     * IPv6 Localhost.
+     */
+    private static final String LOCALHOST_IPV6 = "0:0:0:0:0:0:0:1";
 
     /**
      * MessageService.
@@ -80,15 +97,74 @@ public class MessageController {
      *
      * @param organization optional Organization query parameter
      * @param notificationType optional NotificationType query parameter
+     * @param request HttpServletRequest
      * @return Message
      */
     @GetMapping
     public Message get(@RequestParam(name = "notificationType", required = false) final String notificationType,
-                       @RequestParam(name = "organization", required = false) final String organization) {
-        String type = notificationType;
-        if (type != null) {
-            type = type.toUpperCase();
+                       @RequestParam(name = "organization", required = false) final String organization,
+                       final HttpServletRequest request) {
+        return messageService.getMessage(getOrganization(organization),
+                getType(notificationType), getClientIp(request));
+    }
+
+    /**
+     * Get organization.
+     *
+     * @param org user input
+     * @return organization
+     */
+    private String getOrganization(final String org) {
+        return Objects.requireNonNullElse(org, CommonConstants.DEFAULT_ORGANIZATION);
+    }
+
+    /**
+     * Get NotificationType.
+     *
+     * @param type user input
+     * @return NotificationType
+     */
+    private NotificationType getType(final String type) {
+        if (type == null) {
+            return NotificationType.ALL;
+        } else {
+            return NotificationType.valueOf(type.toUpperCase());
         }
-        return messageService.getMessage(organization, NotificationType.valueOf(type));
+    }
+
+    /**
+     * Gets the IP Address for the caller.
+     *
+     * @param request HttpServletRequest
+     * @return client IP Address
+     */
+    public String getClientIp(final HttpServletRequest request) {
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ObjectUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+
+        if (ObjectUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+
+        if (ObjectUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+            if (LOCALHOST_IPV4.equals(ipAddress) || LOCALHOST_IPV6.equals(ipAddress)) {
+                try {
+                    InetAddress inetAddress = InetAddress.getLocalHost();
+                    ipAddress = inetAddress.getHostAddress();
+                } catch (UnknownHostException e) {
+                    log.error(e.getMessage());
+                }
+            }
+        }
+
+        if (!ObjectUtils.isEmpty(ipAddress)
+                && ipAddress.length() > CommonConstants.FIFTEEN && ipAddress.indexOf(",") > 0) {
+            ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
+        }
+
+        return ipAddress;
     }
 }

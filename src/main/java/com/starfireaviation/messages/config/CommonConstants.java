@@ -21,10 +21,20 @@ public class CommonConstants {
     /**
      * Default organization.
      */
-    public static final String DEFAULT_ORGANIZATION = "default";
+    public static final String DEFAULT_ORGANIZATION = "DEFAULT";
 
     /**
-     * Maximium Queue Size.
+     * Cleanup Delay.
      */
-    public static final int MAX_QUEUE_SIZE = 10000;
+    public static final int CLEANUP_DELAY = 60000;
+
+    /**
+     * Message Expiration Time.
+     */
+    public static final int MESSAGE_EXPIRATION_TIME = 5;
+
+    /**
+     * FIFTEEN.
+     */
+    public static final int FIFTEEN = 15;
 }
