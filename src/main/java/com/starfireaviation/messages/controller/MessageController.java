@@ -19,6 +19,7 @@ package com.starfireaviation.messages.controller;
 import com.starfireaviation.messages.config.CommonConstants;
 import com.starfireaviation.messages.exception.InsufficientStorageException;
 import com.starfireaviation.messages.exception.InvalidPayloadException;
+import com.starfireaviation.messages.exception.ResourceNotFoundException;
 import com.starfireaviation.model.Message;
 import com.starfireaviation.messages.service.MessageService;
 import com.starfireaviation.messages.validation.MessageValidator;
@@ -99,13 +100,18 @@ public class MessageController {
      * @param notificationType optional NotificationType query parameter
      * @param request HttpServletRequest
      * @return Message
+     * @throws ResourceNotFoundException when no message is found
      */
     @GetMapping
     public Message get(@RequestParam(name = "notificationType", required = false) final String notificationType,
                        @RequestParam(name = "organization", required = false) final String organization,
-                       final HttpServletRequest request) {
-        return messageService.getMessage(getOrganization(organization),
+                       final HttpServletRequest request) throws ResourceNotFoundException {
+        final Message message = messageService.getMessage(getOrganization(organization),
                 getType(notificationType), getClientIp(request));
+        if (message == null) {
+            throw new ResourceNotFoundException("No message matching provided criteria was found");
+        }
+        return message;
     }
 
     /**
