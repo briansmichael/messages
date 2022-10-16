@@ -18,6 +18,7 @@ package com.starfireaviation.messages.service;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
+import com.hazelcast.map.IMap;
 import com.starfireaviation.messages.config.CommonConstants;
 import com.starfireaviation.model.Message;
 import com.starfireaviation.model.NotificationType;
@@ -40,13 +41,13 @@ public class MessageService {
      * Message map.
      * Note: Key = organization; Value = List of Messages
      */
-    private final Map<String, List<Message>> map;
+    private final IMap<String, List<Message>> map;
 
     /**
      * Seen ID map.
      * Note: Outer Key = organization; Inner Key = clientIPAddress; Value(s) = Message ID(s)
      */
-    private final Map<String, Map<String, List<Long>>> seenMap;
+    private final IMap<String, Map<String, List<Long>>> seenMap;
 
     /**
      * ID generator.
