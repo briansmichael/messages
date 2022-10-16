@@ -16,6 +16,8 @@
 
 package com.starfireaviation.messages.service;
 
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.flakeidgen.FlakeIdGenerator;
 import com.starfireaviation.messages.config.CommonConstants;
 import com.starfireaviation.model.Message;
 import com.starfireaviation.model.NotificationType;
@@ -47,16 +49,19 @@ public class MessageService {
     private final Map<String, Map<String, List<Long>>> seenMap;
 
     /**
-     * ID Sequence.
+     * ID generator.
      */
-    private Long idSequence = 1L;
+    private final FlakeIdGenerator flakeIdGenerator;
 
     /**
      * MessageService.
+     *
+     * @param hazelcastInstance HazelcastInstance
      */
-    public MessageService() {
-        map = new HashMap<>();
-        seenMap = new HashMap<>();
+    public MessageService(final HazelcastInstance hazelcastInstance) {
+        map = hazelcastInstance.getMap("messages");
+        seenMap = hazelcastInstance.getMap("seen");
+        flakeIdGenerator = hazelcastInstance.getFlakeIdGenerator("messageIds");
     }
 
     /**
@@ -222,10 +227,7 @@ public class MessageService {
      * @param message to be modified
      */
     private void ensureIDIsSet(final Message message) {
-        message.setId(idSequence++);
-        if (idSequence == Long.MAX_VALUE) {
-            idSequence = 1L;
-        }
+        message.setId(flakeIdGenerator.newId());
     }
 
     /**
