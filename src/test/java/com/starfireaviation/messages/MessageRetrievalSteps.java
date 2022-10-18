@@ -19,10 +19,14 @@ package com.starfireaviation.messages;
 import com.starfireaviation.model.Message;
 import com.starfireaviation.model.NotificationType;
 import com.starfireaviation.model.Priority;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.UUID;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,6 +34,11 @@ import org.springframework.http.MediaType;
 
 @Slf4j
 public class MessageRetrievalSteps extends BaseSteps {
+
+    @Before
+    public void init() {
+        testContext.reset();
+    }
 
     @Given("^No messages are available$")
     public void noMessagesAreAvailable() throws Throwable {
@@ -83,6 +92,9 @@ public class MessageRetrievalSteps extends BaseSteps {
     private HttpHeaders getHeaders() {
         final HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        if (testContext.getClientId() != null) {
+            httpHeaders.add("client-id", testContext.getClientId());
+        }
         if (testContext.getOrganization() != null) {
             httpHeaders.add("organization", testContext.getOrganization());
         }

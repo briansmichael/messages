@@ -31,19 +31,19 @@ public class CommonSteps extends BaseSteps {
         switch (expectedResult) {
             case "a message added response":
                 log.info("I should receive a message added response");
-                Assertions.assertSame(testContext.getResponse().getStatusCode(), HttpStatus.OK);
+                Assertions.assertSame(HttpStatus.OK, testContext.getResponse().getStatusCode());
                 break;
             case "an empty response":
                 log.info("I should receive an empty response");
-                Assertions.assertSame(testContext.getResponse().getStatusCode(), HttpStatus.NOT_FOUND);
+                Assertions.assertSame(HttpStatus.NOT_FOUND, testContext.getResponse().getStatusCode());
                 break;
             case "a message":
                 log.info("I should receive a message");
-                Assertions.assertSame(testContext.getResponse().getStatusCode(), HttpStatus.OK);
+                Assertions.assertSame(HttpStatus.OK, testContext.getResponse().getStatusCode());
                 break;
             case "an InvalidPayloadException":
                 log.info("I should receive an InvalidPayloadException");
-                Assertions.assertSame(testContext.getResponse().getStatusCode(), HttpStatus.BAD_REQUEST);
+                Assertions.assertSame(HttpStatus.BAD_REQUEST, testContext.getResponse().getStatusCode());
                 break;
             default:
                 fail("Unexpected error");

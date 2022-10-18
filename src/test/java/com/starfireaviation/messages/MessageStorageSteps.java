@@ -17,6 +17,7 @@
 package com.starfireaviation.messages;
 
 import com.starfireaviation.model.Message;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,11 @@ import org.springframework.http.MediaType;
 @Slf4j
 public class MessageStorageSteps extends BaseSteps {
 
+    @Before
+    public void init() {
+        testContext.reset();
+    }
+
     @Given("^I have a message$")
     public void iHaveAMessage() throws Throwable {
         testContext.setMessage(new Message());
@@ -40,9 +46,14 @@ public class MessageStorageSteps extends BaseSteps {
         testContext.setOrganization(ORGANIZATION);
     }
 
-    @Given("^I provide a correlation id$")
+    @Given("^I provide a correlation id")
     public void iProvideACorrelationId() throws Throwable {
         testContext.setCorrelationId(UUID.randomUUID().toString());
+    }
+
+    @Given("^I provide a client id")
+    public void iProvideAClientId() throws Throwable {
+        testContext.setClientId(UUID.randomUUID().toString());
     }
 
     @When("^I add the message$")

@@ -6,6 +6,9 @@ Feature: Message Retrieval
 
   Scenario: Get messages when none are present
     Given No messages are available
+    And I provide an organization
+    And I provide a correlation id
+    And I provide a client id
     When I get a message
     Then I should receive an empty response
 
@@ -15,6 +18,7 @@ Feature: Message Retrieval
     And with the notificationType set to <notificationType>
     And I provide an organization
     And I provide a correlation id
+    And I provide a client id
     And the message is next in the queue
     When I get a message with <queryParams>
     Then I should receive a message
