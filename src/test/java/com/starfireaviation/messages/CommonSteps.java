@@ -16,6 +16,8 @@
 
 package com.starfireaviation.messages;
 
+import java.util.UUID;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -25,6 +27,21 @@ import static org.assertj.core.api.Assertions.fail;
 
 @Slf4j
 public class CommonSteps extends BaseSteps {
+
+    @Given("^I provide an organization$")
+    public void iProvideAnOrganization() throws Throwable {
+        testContext.setOrganization(ORGANIZATION);
+    }
+
+    @Given("^I provide a correlation id")
+    public void iProvideACorrelationId() throws Throwable {
+        testContext.setCorrelationId(UUID.randomUUID().toString());
+    }
+
+    @Given("^I provide a client id")
+    public void iProvideAClientId() throws Throwable {
+        testContext.setClientId(UUID.randomUUID().toString());
+    }
 
     @Then("^I should receive (.*)$")
     public void iShouldReceive(final String expectedResult) throws Throwable {

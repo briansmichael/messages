@@ -22,8 +22,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.UUID;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -39,21 +37,6 @@ public class MessageStorageSteps extends BaseSteps {
     @Given("^I have a message$")
     public void iHaveAMessage() throws Throwable {
         testContext.setMessage(new Message());
-    }
-
-    @Given("^I provide an organization$")
-    public void iProvideAnOrganization() throws Throwable {
-        testContext.setOrganization(ORGANIZATION);
-    }
-
-    @Given("^I provide a correlation id")
-    public void iProvideACorrelationId() throws Throwable {
-        testContext.setCorrelationId(UUID.randomUUID().toString());
-    }
-
-    @Given("^I provide a client id")
-    public void iProvideAClientId() throws Throwable {
-        testContext.setClientId(UUID.randomUUID().toString());
     }
 
     @When("^I add the message$")

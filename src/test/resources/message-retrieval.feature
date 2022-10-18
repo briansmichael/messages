@@ -29,3 +29,29 @@ Feature: Message Retrieval
     | NORMAL   | null             |                        |
     | null     | SMS              | notificationType=SMS   |
     | NORMAL   | ALL              |                        |
+
+  Scenario: Get messages without providing any headers
+    Given No messages are available
+    When I get a message
+    Then I should receive an InvalidPayloadException 
+
+  Scenario: Get messages without providing an organization
+    Given No messages are available
+    And I provide a correlation id
+    And I provide a client id
+    When I get a message
+    Then I should receive an InvalidPayloadException
+
+  Scenario: Get messages without providing a correlation id
+    Given No messages are available
+    And I provide an organization
+    And I provide a client id
+    When I get a message
+    Then I should receive an InvalidPayloadException
+
+  Scenario: Get messages without providing a client id
+    Given No messages are available
+    And I provide an organization
+    And I provide a correlation id
+    When I get a message
+    Then I should receive an InvalidPayloadException
