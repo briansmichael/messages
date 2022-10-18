@@ -18,60 +18,28 @@ package com.starfireaviation.messages;
 
 import com.starfireaviation.model.Message;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import org.springframework.http.HttpEntity;
 
 @Slf4j
-public class MessageStorageSteps extends AbstractSteps {
-
-    /**
-     * ORGANIZATION.
-     */
-    private static final String ORGANIZATION = "TEST_ORG";
-
-    /**
-     * Message.
-     */
-    private Message message;
+public class MessageStorageSteps extends BaseSteps {
 
     @Given("^I have a message$")
     public void iHaveAMessage() throws Throwable {
-        message = new Message();
+        testContext.setMessage(new Message());
     }
 
     @Given("^I provide an organization$")
     public void iProvideAnOrganization() throws Throwable {
-        message.setOrganization(ORGANIZATION);
+        testContext.getMessage().setOrganization(ORGANIZATION);
     }
 
     @When("^I add the message$")
     public void iAddTheMessage() throws Throwable {
         log.info("I add the message");
-        String addMessageUrl = "/messages";
-        executePost(addMessageUrl);
-    }
-
-    @Then("^I should receive (.*)$")
-    public void iShouldReceive(final String expectedResult) throws Throwable {
-        final Response response = testContext().getResponse();
-
-        switch (expectedResult) {
-            case "a message added response":
-                log.info("I should receive a message added response");
-                assertThat(response.statusCode()).isIn(200, 201);
-                break;
-            case "an InvalidPayloadException":
-                log.info("I should receive an InvalidPayloadException");
-                assertThat(response.statusCode()).isBetween(400, 504);
-                break;
-            default:
-                fail("Unexpected error");
-        }
+        testContext.setResponse(restTemplate.postForEntity(URL,
+                new HttpEntity<>(testContext.getMessage()), Void.class));
     }
 
 }

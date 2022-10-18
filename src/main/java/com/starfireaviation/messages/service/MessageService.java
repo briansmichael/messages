@@ -82,8 +82,10 @@ public class MessageService {
         if (messages == null) {
             messages = new ArrayList<>();
         }
+        final boolean success = messages.add(message);
         map.put(org, messages);
-        return messages.add(message);
+        log.info("Returning success={}", success);
+        return success;
     }
 
     /**

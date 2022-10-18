@@ -1,3 +1,4 @@
+@MessageStorage
 Feature: Message Storage
   As a user
   I want to persist messages
