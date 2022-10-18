@@ -6,21 +6,52 @@ Feature: Message Retrieval
 
   Scenario: Get messages when none are present
     Given No messages are available
+    And I provide an organization
+    And I provide a correlation id
+    And I provide a client id
     When I get a message
     Then I should receive an empty response
 
   Scenario Outline: Get a message
     Given A message is available
-    And with the organization set to <organization>
     And with the priority set to <priority>
     And with the notificationType set to <notificationType>
+    And I provide an organization
+    And I provide a correlation id
+    And I provide a client id
     And the message is next in the queue
     When I get a message with <queryParams>
     Then I should receive a message
 
     Examples:
-    | organization | priority | notificationType | queryParams                                  |
-    | TEST_ORG     | HIGH     | SLACK            | organization=TEST_ORG&notificationType=SLACK |
-    | TEST_ORG     | NORMAL   | null             | organization=TEST_ORG                        |
-    | TEST_ORG     | null     | SMS              | organization=TEST_ORG&notificationType=SMS   |
-    | TEST_ORG     | NORMAL   | ALL              | organization=TEST_ORG                        |
+    | priority | notificationType | queryParams            |
+    | HIGH     | SLACK            | notificationType=SLACK |
+    | NORMAL   | null             |                        |
+    | null     | SMS              | notificationType=SMS   |
+    | NORMAL   | ALL              |                        |
+
+  Scenario: Get messages without providing any headers
+    Given No messages are available
+    When I get a message
+    Then I should receive an InvalidPayloadException 
+
+  Scenario: Get messages without providing an organization
+    Given No messages are available
+    And I provide a correlation id
+    And I provide a client id
+    When I get a message
+    Then I should receive an InvalidPayloadException
+
+  Scenario: Get messages without providing a correlation id
+    Given No messages are available
+    And I provide an organization
+    And I provide a client id
+    When I get a message
+    Then I should receive an InvalidPayloadException
+
+  Scenario: Get messages without providing a client id
+    Given No messages are available
+    And I provide an organization
+    And I provide a correlation id
+    When I get a message
+    Then I should receive an InvalidPayloadException

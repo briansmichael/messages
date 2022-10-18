@@ -17,29 +17,41 @@
 package com.starfireaviation.messages;
 
 import com.starfireaviation.model.Message;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 @Slf4j
 public class MessageStorageSteps extends BaseSteps {
+
+    @Before
+    public void init() {
+        testContext.reset();
+    }
 
     @Given("^I have a message$")
     public void iHaveAMessage() throws Throwable {
         testContext.setMessage(new Message());
     }
 
-    @Given("^I provide an organization$")
-    public void iProvideAnOrganization() throws Throwable {
-        testContext.getMessage().setOrganization(ORGANIZATION);
-    }
-
     @When("^I add the message$")
     public void iAddTheMessage() throws Throwable {
         log.info("I add the message");
-        testContext.setResponse(restTemplate.postForEntity(URL,
-                new HttpEntity<>(testContext.getMessage()), Void.class));
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        if (testContext.getOrganization() != null) {
+            headers.add("organization", testContext.getOrganization());
+        }
+        if (testContext.getCorrelationId() != null) {
+            headers.add("correlation-id", testContext.getCorrelationId());
+        }
+        final HttpEntity<Message> httpEntity = new HttpEntity<>(testContext.getMessage(), headers);
+        testContext.setResponse(restTemplate.postForEntity(URL, httpEntity, Void.class));
     }
 
 }

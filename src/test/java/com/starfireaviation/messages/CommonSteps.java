@@ -16,6 +16,8 @@
 
 package com.starfireaviation.messages;
 
+import java.util.UUID;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -26,24 +28,39 @@ import static org.assertj.core.api.Assertions.fail;
 @Slf4j
 public class CommonSteps extends BaseSteps {
 
+    @Given("^I provide an organization$")
+    public void iProvideAnOrganization() throws Throwable {
+        testContext.setOrganization(ORGANIZATION);
+    }
+
+    @Given("^I provide a correlation id")
+    public void iProvideACorrelationId() throws Throwable {
+        testContext.setCorrelationId(UUID.randomUUID().toString());
+    }
+
+    @Given("^I provide a client id")
+    public void iProvideAClientId() throws Throwable {
+        testContext.setClientId(UUID.randomUUID().toString());
+    }
+
     @Then("^I should receive (.*)$")
     public void iShouldReceive(final String expectedResult) throws Throwable {
         switch (expectedResult) {
             case "a message added response":
                 log.info("I should receive a message added response");
-                Assertions.assertSame(testContext.getResponse().getStatusCode(), HttpStatus.OK);
+                Assertions.assertSame(HttpStatus.OK, testContext.getResponse().getStatusCode());
                 break;
             case "an empty response":
                 log.info("I should receive an empty response");
-                Assertions.assertSame(testContext.getResponse().getStatusCode(), HttpStatus.NOT_FOUND);
+                Assertions.assertSame(HttpStatus.NOT_FOUND, testContext.getResponse().getStatusCode());
                 break;
             case "a message":
                 log.info("I should receive a message");
-                Assertions.assertSame(testContext.getResponse().getStatusCode(), HttpStatus.OK);
+                Assertions.assertSame(HttpStatus.OK, testContext.getResponse().getStatusCode());
                 break;
             case "an InvalidPayloadException":
                 log.info("I should receive an InvalidPayloadException");
-                Assertions.assertSame(testContext.getResponse().getStatusCode(), HttpStatus.BAD_REQUEST);
+                Assertions.assertSame(HttpStatus.BAD_REQUEST, testContext.getResponse().getStatusCode());
                 break;
             default:
                 fail("Unexpected error");

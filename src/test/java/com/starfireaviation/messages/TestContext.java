@@ -35,5 +35,29 @@ public class TestContext {
      */
     private ResponseEntity<?> response;
 
+    /**
+     * Organization.
+     */
+    private String organization;
 
+    /**
+     * CorrelationID.
+     */
+    private String correlationId;
+
+    /**
+     * ClientID.
+     */
+    private String clientId;
+
+    /**
+     * Resets attributes values to their defaults.
+     */
+    public void reset() {
+        message = null;
+        response = null;
+        organization = null;
+        correlationId = null;
+        clientId = null;
+    }
 }

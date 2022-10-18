@@ -69,21 +69,23 @@ public class MessageService {
      * Adds a message to the queue.
      *
      * @param message Message
+     * @param organization Organization
+     * @param correlationId CorrelationID
      * @return message add success
      */
-    public boolean addMessage(final Message message) {
-        final String org = getOrganization(message);
+    public boolean addMessage(final Message message, final String organization, final String correlationId) {
         ensureIDIsSet(message);
         ensureExpirationTimeIsSet(message);
         ensurePriorityIsSet(message);
         ensureNotificationTypeIsSet(message);
-        log.info("Adding message: {} with ID: {} to org: {}", message, message.getId(), org);
-        List<Message> messages = map.get(org);
+        log.info("Adding message: {} with ID: {} to organization: {}; correlationId: {}", 
+                 message, message.getId(), organization, correlationId);
+        List<Message> messages = map.get(organization);
         if (messages == null) {
             messages = new ArrayList<>();
         }
         final boolean success = messages.add(message);
-        map.put(org, messages);
+        map.put(organization, messages);
         log.info("Returning success={}", success);
         return success;
     }
@@ -93,16 +95,17 @@ public class MessageService {
      *
      * @param organization Organization
      * @param notificationType NotificationType
-     * @param callerIPAddress Caller's IP Address
+     * @param clientId ClientID
+     * @param correlationId CorrelationID
      * @return Message
      */
     public Message getMessage(final String organization,
                               final NotificationType notificationType,
-                              final String callerIPAddress) {
-        log.info("Getting message for organization: {}; notificationType: {}; callerIPAddress: {}",
-                organization, notificationType, callerIPAddress);
-        final String org = getOrganization(organization);
-        List<Message> messages = map.get(org);
+                              final String clientId,
+                              final String correlationId) {
+        log.info("Getting message for organization: {}; notificationType: {}; clientId: {}; correlationId: {}",
+                organization, notificationType, clientId, correlationId);
+        List<Message> messages = map.get(organization);
         if (messages == null) {
             return null;
         }
@@ -111,7 +114,7 @@ public class MessageService {
         log.info("Message count before filters: {}", messages.size());
         messages = filterExpired(messages);
         messages = filterNotificationType(messages, notificationType);
-        messages = filterSeen(messages, org, callerIPAddress);
+        messages = filterSeen(messages, organization, clientId);
         log.info("Message count after filters: {}", messages.size());
 
         // Get message in priority order
@@ -126,10 +129,10 @@ public class MessageService {
         // Cleanup
         if (message != null && message.getNotificationType() != NotificationType.ALL) {
             log.info("Removing and returning message with ID: {} to caller: {}", message.getId(), message);
-            map.get(org).remove(message);
+            map.get(organization).remove(message);
         } else if (message != null && message.getNotificationType() == NotificationType.ALL) {
             log.info("Returning message with ID: {} to caller: {}", message.getId(), message);
-            markMessageAsSeenForCaller(callerIPAddress, org, message);
+            markMessageAsSeenForCaller(clientId, organization, message);
         } else if (message == null) {
             log.info("Returning null");
         }
@@ -153,23 +156,23 @@ public class MessageService {
      * This is to allow for message intended to be delivered to multiple recipients to be delivered to more than
      * one receiver, without being seen more than once by any given caller.
      *
-     * @param callerIPAddress caller's IP address
+     * @param clientId ClientID
      * @param org organization
      * @param message Message
      */
-    private void markMessageAsSeenForCaller(final String callerIPAddress, final String org, final Message message) {
+    private void markMessageAsSeenForCaller(final String clientId, final String org, final Message message) {
         final List<Long> seenList = new ArrayList<>();
         seenList.add(message.getId());
         Map<String, List<Long>> ipMap = seenMap.get(org);
         if (ipMap == null) {
             ipMap = new HashMap<>();
-            ipMap.put(callerIPAddress, seenList);
+            ipMap.put(clientId, seenList);
         } else {
-            final List<Long> priorSeenList = ipMap.get(callerIPAddress);
+            final List<Long> priorSeenList = ipMap.get(clientId);
             if (priorSeenList != null) {
                 seenList.addAll(priorSeenList);
             }
-            ipMap.put(callerIPAddress, seenList);
+            ipMap.put(clientId, seenList);
         }
         seenMap.put(org, ipMap);
     }
@@ -207,16 +210,16 @@ public class MessageService {
      *
      * @param messages to be filtered
      * @param organization filter criteria
-     * @param callerIPAddress filter criteria
+     * @param clientId filter criteria
      * @return filtered messages
      */
     private List<Message> filterSeen(final List<Message> messages,
                                      final String organization,
-                                     final String callerIPAddress) {
+                                     final String clientId) {
         List<Message> messageList = messages;
         final Map<String, List<Long>> ipMap = seenMap.get(organization);
         if (ipMap != null) {
-            final List<Long> seenList = ipMap.get(callerIPAddress);
+            final List<Long> seenList = ipMap.get(clientId);
             if (seenList != null) {
                 messageList = messageList.stream()
                         .filter(message -> !seenList.contains(message.getId()))
@@ -266,30 +269,6 @@ public class MessageService {
         if (message.getExpirationTime() == null) {
             message.setExpirationTime(Instant.now().plus(CommonConstants.MESSAGE_EXPIRATION_TIME, ChronoUnit.MINUTES));
         }
-    }
-
-    /**
-     * Gets organization name.
-     *
-     * @param message Message
-     * @return organization name
-     */
-    private String getOrganization(final Message message) {
-        return getOrganization(message.getOrganization());
-    }
-
-    /**
-     * Get organization name.
-     *
-     * @param organization name
-     * @return organization name
-     */
-    private String getOrganization(final String organization) {
-        String org = organization;
-        if (org == null) {
-            org = CommonConstants.DEFAULT_ORGANIZATION;
-        }
-        return org.toUpperCase();
     }
 
     /**

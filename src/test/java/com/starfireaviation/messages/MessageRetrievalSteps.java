@@ -19,14 +19,26 @@ package com.starfireaviation.messages;
 import com.starfireaviation.model.Message;
 import com.starfireaviation.model.NotificationType;
 import com.starfireaviation.model.Priority;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.UUID;
+
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 
 @Slf4j
 public class MessageRetrievalSteps extends BaseSteps {
+
+    @Before
+    public void init() {
+        testContext.reset();
+    }
 
     @Given("^No messages are available$")
     public void noMessagesAreAvailable() throws Throwable {
@@ -40,13 +52,6 @@ public class MessageRetrievalSteps extends BaseSteps {
     @And("^with the (.*) set to (.*)$")
     public void withTheSetTo(final String key, final String value) throws Throwable {
         switch (key) {
-            case "organization":
-                if (!"null".equalsIgnoreCase(value)) {
-                    testContext.getMessage().setOrganization(value);
-                } else {
-                    testContext.getMessage().setOrganization(null);
-                }
-                break;
             case "priority":
                 if (!"null".equalsIgnoreCase(value)) {
                     testContext.getMessage().setPriority(Priority.valueOf(value));
@@ -68,19 +73,34 @@ public class MessageRetrievalSteps extends BaseSteps {
 
     @And("^the message is next in the queue$")
     public void theMessageIsNextInTheQueue() throws Throwable {
-        restTemplate.postForEntity(URL, new HttpEntity<>(testContext.getMessage()), Void.class);
+        final HttpEntity<Message> httpEntity = new HttpEntity<>(testContext.getMessage(), getHeaders());
+        restTemplate.postForEntity(URL, httpEntity, Void.class);
     }
 
     @When("^I get a message$")
     public void iGetAMessage() throws Throwable {
         log.info("I get a message");
-        testContext.setResponse(restTemplate.getForEntity(URL, Message.class));
+        testContext.setResponse(restTemplate.exchange(URL, HttpMethod.GET, new HttpEntity<Object>(getHeaders()), Message.class));
     }
 
     @When("^I get a message with (.*)$")
     public void iGetAMessage(final String queryParams) throws Throwable {
         log.info("I get a message with queryParams: {}", queryParams);
-        testContext.setResponse(restTemplate.getForEntity(URL + "?" + queryParams, Message.class));
+        testContext.setResponse(restTemplate.exchange(URL + "?" + queryParams, HttpMethod.GET, new HttpEntity<Object>(getHeaders()), Message.class));
     }
 
+    private HttpHeaders getHeaders() {
+        final HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        if (testContext.getClientId() != null) {
+            httpHeaders.add("client-id", testContext.getClientId());
+        }
+        if (testContext.getOrganization() != null) {
+            httpHeaders.add("organization", testContext.getOrganization());
+        }
+        if (testContext.getCorrelationId() != null) {
+            httpHeaders.add("correlation-id", testContext.getCorrelationId());
+        }
+        return httpHeaders;
+    }
 }
