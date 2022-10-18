@@ -12,5 +12,6 @@ Feature: Message Storage
   Scenario: Add a message with only an organization provided
     Given I have a message
     And I provide an organization
+    And I provide a correlation id
     When I add the message
     Then I should receive a message added response

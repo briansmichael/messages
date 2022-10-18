@@ -35,5 +35,19 @@ public class TestContext {
      */
     private ResponseEntity<?> response;
 
+    /**
+     * Organization.
+     */
+    private String organization;
+
+    /**
+     * CorrelationID.
+     */
+    private String correlationId;
+
+    /**
+     * ClientID.
+     */
+    private String clientId;
 
 }
