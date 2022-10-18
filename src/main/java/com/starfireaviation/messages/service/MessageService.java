@@ -23,9 +23,6 @@ import com.starfireaviation.messages.config.CommonConstants;
 import com.starfireaviation.model.Message;
 import com.starfireaviation.model.NotificationType;
 import com.starfireaviation.model.Priority;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -33,6 +30,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+
 
 @Slf4j
 public class MessageService {
@@ -82,8 +82,10 @@ public class MessageService {
         if (messages == null) {
             messages = new ArrayList<>();
         }
+        final boolean success = messages.add(message);
         map.put(org, messages);
-        return messages.add(message);
+        log.info("Returning success={}", success);
+        return success;
     }
 
     /**
@@ -106,9 +108,11 @@ public class MessageService {
         }
 
         // Apply filters
+        log.info("Message count before filters: {}", messages.size());
         messages = filterExpired(messages);
         messages = filterNotificationType(messages, notificationType);
         messages = filterSeen(messages, org, callerIPAddress);
+        log.info("Message count after filters: {}", messages.size());
 
         // Get message in priority order
         Message message = getMessageByPriority(messages, Priority.HIGH);

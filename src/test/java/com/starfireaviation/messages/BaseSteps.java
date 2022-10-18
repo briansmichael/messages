@@ -16,14 +16,29 @@
 
 package com.starfireaviation.messages;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.web.client.RestTemplate;
 
-@SpringBootTest
-class MessagesApplicationTests {
+public class BaseSteps {
 
-	@Test
-	void contextLoads() {
-	}
+    /**
+     * URL.
+     */
+    protected static final String URL = "http://localhost:8080/messages";
+
+    /**
+     * ORGANIZATION.
+     */
+    protected static final String ORGANIZATION = "TEST_ORG";
+
+    /**
+     * RestTemplate.
+     */
+    protected RestTemplate restTemplate = new RestTemplateBuilder()
+            .errorHandler(new RestTemplateResponseErrorHandler()).build();
+
+    @Autowired
+    protected TestContext testContext;
 
 }
