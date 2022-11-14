@@ -16,7 +16,7 @@
 
 package com.starfireaviation.messages;
 
-import com.starfireaviation.model.Message;
+import com.starfireaviation.common.model.Message;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

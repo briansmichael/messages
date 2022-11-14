@@ -16,16 +16,14 @@
 
 package com.starfireaviation.messages;
 
-import com.starfireaviation.model.Message;
-import com.starfireaviation.model.NotificationType;
-import com.starfireaviation.model.Priority;
+import com.starfireaviation.common.model.Message;
+import com.starfireaviation.common.model.NotificationType;
+import com.starfireaviation.common.model.Priority;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.UUID;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

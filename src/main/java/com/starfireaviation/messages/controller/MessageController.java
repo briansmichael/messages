@@ -16,13 +16,13 @@
 
 package com.starfireaviation.messages.controller;
 
-import com.starfireaviation.messages.exception.InsufficientStorageException;
-import com.starfireaviation.messages.exception.InvalidPayloadException;
-import com.starfireaviation.messages.exception.ResourceNotFoundException;
-import com.starfireaviation.model.Message;
+import com.starfireaviation.common.exception.InsufficientStorageException;
+import com.starfireaviation.common.exception.InvalidPayloadException;
+import com.starfireaviation.common.exception.ResourceNotFoundException;
+import com.starfireaviation.common.model.Message;
 import com.starfireaviation.messages.service.MessageService;
 import com.starfireaviation.messages.validation.MessageValidator;
-import com.starfireaviation.model.NotificationType;
+import com.starfireaviation.common.model.NotificationType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

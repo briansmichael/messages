@@ -16,7 +16,7 @@
 
 package com.starfireaviation.messages;
 
-import com.starfireaviation.model.Message;
+import com.starfireaviation.common.model.Message;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
