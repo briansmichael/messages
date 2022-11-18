@@ -163,18 +163,18 @@ public class MessageService {
     private void markMessageAsSeenForCaller(final String clientId, final String org, final Message message) {
         final List<Long> seenList = new ArrayList<>();
         seenList.add(message.getId());
-        Map<String, List<Long>> ipMap = seenMap.get(org);
-        if (ipMap == null) {
-            ipMap = new HashMap<>();
-            ipMap.put(clientId, seenList);
+        Map<String, List<Long>> idMap = seenMap.get(org);
+        if (idMap == null) {
+            idMap = new HashMap<>();
+            idMap.put(clientId, seenList);
         } else {
-            final List<Long> priorSeenList = ipMap.get(clientId);
+            final List<Long> priorSeenList = idMap.get(clientId);
             if (priorSeenList != null) {
                 seenList.addAll(priorSeenList);
             }
-            ipMap.put(clientId, seenList);
+            idMap.put(clientId, seenList);
         }
-        seenMap.put(org, ipMap);
+        seenMap.put(org, idMap);
     }
 
     /**
@@ -216,17 +216,16 @@ public class MessageService {
     private List<Message> filterSeen(final List<Message> messages,
                                      final String organization,
                                      final String clientId) {
-        List<Message> messageList = messages;
-        final Map<String, List<Long>> ipMap = seenMap.get(organization);
-        if (ipMap != null) {
-            final List<Long> seenList = ipMap.get(clientId);
+        final Map<String, List<Long>> idMap = seenMap.get(organization);
+        if (idMap != null) {
+            final List<Long> seenList = idMap.get(clientId);
             if (seenList != null) {
-                messageList = messageList.stream()
+                return messages.stream()
                         .filter(message -> !seenList.contains(message.getId()))
                         .collect(Collectors.toList());
             }
         }
-        return messageList;
+        return messages;
     }
 
     /**
