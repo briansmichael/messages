@@ -35,7 +35,7 @@
 		<cucumber.version>7.8.1</cucumber.version>
 		<commons-io.version>1.3.2</commons-io.version>
 		<lombok.version>1.18.30</lombok.version>
-		<starfireaviation.version>0.2.0</starfireaviation.version>
+		<sa.common.version>0.2.0</sa.common.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>com.starfireaviation</groupId>
 			<artifactId>common</artifactId>
-			<version>${starfireaviation.version}</version>
+			<version>${sa.common.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
